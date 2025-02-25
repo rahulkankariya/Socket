@@ -5,5 +5,6 @@ module.exports = {
     DBUSERNAME:process.env.DBUSERNAME,
     DBPASSWORD:process.env.DBPASSWORD,
     DBNAME:process.env.DBNAME,
-    JWTTOTKEN:process.env.JWTTOTKEN
+    JWTKEY:process.env.JWTKEY,
+    PASSWORDKEY:process.env.PASSWORDKEY
 }
