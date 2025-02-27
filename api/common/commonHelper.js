@@ -63,6 +63,48 @@ module.exports = {
             }
         })
     },
-  
+    onlineOffleUpdate:(id,status)=>{
+        return new Promise((resolve,reject) => {
+            try {
+              console.log("Online offle call or not",id,status)
+                
+                database.executeQuery(
+                    storeProcudures.userOnlineCheck,[
+                        id,
+                        status || 0
+                    ],
+                    '', function(err,rows){
+                        if(rows[0][0].res==1){
+                            resolve({ executed: 1, data: {} });
+                        }else{
+                            resolve({ executed: 0, data: {} });
+                        }
+                })
+            } catch (error) {
+                console.log("err==>",error)
+                reject({ executed: 0, data: {} });
+            }
+        })
+    },
+    userActiveList:()=>{
+        return new Promise((resolve,reject) => {
+            try {
+                database.executeQuery(
+                    storeProcudures.activeUserList,[
+                       
+                    ],
+                    '', function(err,rows){
+                        if(rows[0].length!=0){
+                            resolve({ executed: 1, data: rows[0] });
+                        }else{
+                            resolve({ executed: 0, data: [] });
+                        }
+                }) 
+            } catch (error) {
+                resolve({ executed: 0, data: [] });
+            }
+        })
+        
+    }
 
 }

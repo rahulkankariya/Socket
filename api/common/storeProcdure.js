@@ -3,5 +3,7 @@ module.exports = {
     signup:"call signup(?,?,?,?);",
     login:"call login(?)",
     uuidUpdate:"call uuidUpdate(?);",
-    getProfile:"call getProfile(?);"
+    getProfile:"call getProfile(?);",
+    userOnlineCheck:"call userOnlineCheck(?,?);",
+    activeUserList:"call activeUserList();"
 }

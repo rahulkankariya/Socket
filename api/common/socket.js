@@ -1,7 +1,6 @@
 const { Server } = require("socket.io");
 const middleware = require("../middleware/middleware");
-
-const activeSessions = new Map(); // Stores active user sessions
+const commonHelper = require("../common/commonHelper");
 
 const initializeSocket = (server) => {
     const io = new Server(server, {
@@ -10,8 +9,9 @@ const initializeSocket = (server) => {
 
     io.use(middleware.socketToken);
 
-    io.on("connection", (socket) => {
-        const user = socket.user; // Middleware attaches user data
+    io.on("connection", async (socket) => {
+        const user = socket.user;
+        console.log("User Connected:", user);
 
         if (!user) {
             console.log("Unauthorized socket connection attempt.");
@@ -19,24 +19,39 @@ const initializeSocket = (server) => {
             return;
         }
 
-        // ✅ Check if the user is already logged in from another session
-        if (activeSessions.has(user.id)) {
-            const previousSocketId = activeSessions.get(user.id);
-
-            if (previousSocketId !== socket.id) {
-                io.to(previousSocketId).emit("force-logout"); // ✅ Only log out if different session
-                console.log(`Forcing logout for previous session of user: ${user.id}`);
-            }
+        try {
+            // Mark user online
+            await commonHelper.onlineOffleUpdate(user.id, 1);
+        } catch (error) {
+            console.error("Error updating user online status:", error);
         }
 
-        // ✅ Store new session
-        activeSessions.set(user.id, socket.id);
-        console.log(`User connected: ${user.name} (ID: ${user.id}, Socket: ${socket.id})`);
+        try {
+            // Get active users from DB
+            const activeUsersResult = await commonHelper.userActiveList();
+            const activeUsers = activeUsersResult.data || [];
 
-        socket.on("disconnect", () => {
-            if (activeSessions.get(user.id) === socket.id) {
-                activeSessions.delete(user.id);
-                console.log(`User disconnected: ${user.name} (ID: ${user.id})`);
+            console.log("Active Users:", activeUsers);
+
+            // Find previous session and force logout
+            const previousSession = activeUsers.find((u) => u.userId === user.id);
+            if (previousSession?.socket_id && previousSession.socket_id !== socket.id) {
+                io.to(previousSession.socket_id).emit("force-logout");
+                console.log(`Forced logout of previous session for user ID: ${user.id}`);
+            }
+        } catch (error) {
+            console.error("Error fetching active users:", error);
+        }
+
+        console.log(`User Connected: (ID: ${user.id}, Socket: ${socket.id})`);
+
+        socket.on("disconnect", async () => {
+            try {
+                // Mark user offline when disconnected
+                await commonHelper.onlineOffleUpdate(user.id, 0);
+                console.log(`User Disconnected: ${user.name} (ID: ${user.id})`);
+            } catch (error) {
+                console.error("Error updating user offline status:", error);
             }
         });
     });
