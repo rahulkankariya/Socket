@@ -5,7 +5,7 @@ const router = express();
 router.post('/signup',authController.signUp)
 router.post('/login',authController.login)
 router.get('/getProfile',authController.getProfile)
-router.get('/userList',authController.userList)
+router.post('/userList',authController.userList)
 
 router.all("*", function (req, res, next) {
     res.send("Invalid Url");

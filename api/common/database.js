@@ -7,10 +7,11 @@ exports.executeQuery = (sp,data,res,callback)=>{
             if(!err){
                 callback(null,result)
             }else{
-                res.status(503).json({status:503,message:stringConstant.SOMETHINGWENTWRONG,data:{}})
+                res.status(503).json({status:503,message:stringConstant.SOMETHINGWENTWRONG,data:err})
             }
         }) 
     } catch (error) {
+        console.log("er==?",error)
         res.status(200).json({status:503,message:stringConstant.SOMETHINGWENTWRONG,data:error})
     }
   

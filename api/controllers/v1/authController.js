@@ -91,7 +91,7 @@ exports.userList = async (req, res) => {
             res.json({ status: 200, message: stringconstant.SUCESS, data: info.data });
         }
         else {
-            res.json({ status: 400, message: stringconstant.EMAILALREADYEXISTS, data: {} });
+            res.json({ status: 400, message: stringconstant.NODATAFOUND, data: info.data });
         }
 
     } catch (error) {

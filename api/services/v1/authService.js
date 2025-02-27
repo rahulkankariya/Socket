@@ -121,14 +121,15 @@ module.exports = {
                 let pageIndex = req.body.pageIndex ? req.body.pageIndex : 1;
                 let pageSize = req.body.pageSize ? req.body.pageSize : 10;
                 database.executeQuery(
-                    storeProcedure.getAllBanner,
+                    storeProcudures.userList,
                     [
+                        req.decoded.id,
                         (pageIndex - 1) * pageSize,
                         pageSize
     
-                    ], res, function (rows) {
+                    ], res, function (err,rows) {
                         //console.log(rows)
-                        if (rows) {
+                        if (rows[0].length!=0) {
                             let totalPages = pageSize;
                             
                             var recordCount = rows[1][0].recordCount;
@@ -160,13 +161,21 @@ module.exports = {
                             };
                             resolve({ executed: 1, data: data });
                         } else {
-                            resolve({ executed: 0, data: {} });
+                            let data = {
+    
+                                userList: [],
+                                totalPages: 0,
+                                pageIndex: pageIndex,
+                                totalRecords: recordCount,
+                                pageSize: req.body.pageSize ? req.body.pageSize : 10
+                            };
+                            resolve({ executed: 0, data: data });
                         }
     
     
                     })
             } catch (error) {
-               
+                
                 reject({ executed: 0, data: {} });
             }
         })

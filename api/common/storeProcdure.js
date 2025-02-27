@@ -5,5 +5,6 @@ module.exports = {
     uuidUpdate:"call uuidUpdate(?);",
     getProfile:"call getProfile(?);",
     userOnlineCheck:"call userOnlineCheck(?,?);",
-    activeUserList:"call activeUserList();"
+    activeUserList:"call activeUserList();",
+    userList:"call userList(?,?,?);"
 }
