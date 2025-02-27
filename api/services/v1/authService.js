@@ -44,13 +44,13 @@ module.exports = {
         return new Promise((resolve,reject) => {
             try {
                
-                
+                console.log("REq,es",req.body)
                 database.executeQuery(
                     storeProcudures.login,[
                         req.body.email,
                     ],
                     res, function(err,rows){
-                  
+                        console.log("rows==>",rows)
                         if(rows[0][0].res == 1){ // email  found 
                         let encryptPassword = commonHelper.decryptPassword(rows[1][0].password);
                         if(encryptPassword == req.body.password){
@@ -95,13 +95,13 @@ module.exports = {
         return new Promise((resolve,reject) => {
             try {
              
-                
+                console.log("Req.bod==>",req.decoded)
                 database.executeQuery(
                     storeProcudures.getProfile,[
                         req.decoded.id,
                     ],
                     res, function(err,rows){
-                       
+                       console.log("Rows==>",rows)
                        if(rows[0][0].res == 1){
                         resolve({ executed: 1, data: rows[1][0] });
                        }else{

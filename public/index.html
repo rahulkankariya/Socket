@@ -6,28 +6,31 @@
     <title>Chat App</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 h-screen flex">
-    <div class="w-full h-full flex flex-col">
-        <!-- Top Header -->
-        <!-- <div class="w-full  text-white p-4 flex items-center justify-between">
-            <div class="font-bold text-lg">Chat App</div>
-            <div class="flex items-center">
-                <img src="https://via.placeholder.com/40" class="rounded-full mr-2" alt="Logo">
-                <span class="text-sm">User</span>
-            </div>
-        </div> -->
-        
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    
+    <!-- Login Page -->
+    <div id="loginPage" class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-center mb-4">Login</h2>
+        <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded mb-2">
+        <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded mb-4">
+        <button onclick="login()" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Login</button>
+    </div>
+
+    <!-- Chat UI -->
+    <div id="chatUI" class="w-full h-full flex flex-col hidden">
         <div class="flex flex-1">
-            <!-- Sidebar (User List) -->
-            <div class="w-1/3 bg-gray-100 border-r overflow-y-auto" id="userList">
-                <div class="p-4 bg-blue-500 text-white text-left font-bold">Chats</div>
+            <!-- Sidebar -->
+            <div class="w-1/3 bg-gray-100 border-r overflow-y-auto">
+                <div class="p-4 bg-blue-500 text-white font-bold flex justify-between">
+                    Chats
+                    <button onclick="logout()" class="text-sm text-white bg-red-500 px-2 py-1 rounded">Logout</button>
+                </div>
                 <div class="p-3 cursor-pointer border-b hover:bg-gray-200" onclick="selectUser('User 1')">
                     <div class="font-semibold">User 1</div>
                     <div class="text-sm text-gray-600">Last message...</div>
                 </div>
-               
             </div>
-            
+
             <!-- Chat Section -->
             <div class="w-2/3 flex flex-col hidden" id="chatSection">
                 <div class="bg-blue-500 p-4 text-white font-bold flex justify-between items-center">
@@ -41,9 +44,65 @@
             </div>
         </div>
     </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-         const socket = io(); 
+        const socket = io();
+
+        // Check if token exists
+        document.addEventListener("DOMContentLoaded", () => {
+            const token = localStorage.getItem("token");
+            console.log("Auth==>",token)
+            if (token) {
+                fetch("/api/v1/getProfile", {
+                method: "get",
+                headers: { "Content-Type": "application/json","Authorization": `${token}`  },
+               
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("data==>",data)
+                
+            });
+                document.getElementById("loginPage").classList.add("hidden");
+                document.getElementById("chatUI").classList.remove("hidden");
+            }
+        });
+
+        function login() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (!email || !password) {
+                alert("Please enter email and password");
+                return;
+            }
+
+            // Simulated login API call
+            fetch("/api/v1/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("data==>",data)
+                if (data?.data.token) {
+                    localStorage.setItem("token", data?.data?.token);
+                    document.getElementById("loginPage").classList.add("hidden");
+                    document.getElementById("chatUI").classList.remove("hidden");
+                } else {
+                    alert("Invalid credentials");
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            document.getElementById("chatUI").classList.add("hidden");
+            document.getElementById("loginPage").classList.remove("hidden");
+        }
+
         let selectedUser = '';
         function selectUser(user) {
             selectedUser = user;
@@ -57,11 +116,11 @@
                 alert('Please select a user to chat with.');
                 return;
             }
-            
+
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
-            socket.emit("user-message", message);
             if (message) {
+                socket.emit("user-message", message);
                 const chatBox = document.getElementById('chatBox');
                 const newMessage = document.createElement('div');
                 newMessage.className = 'mb-2 p-2 bg-blue-500 text-white rounded-lg w-max ml-auto';
@@ -71,8 +130,6 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
-        
-   
     </script>
 </body>
 </html>

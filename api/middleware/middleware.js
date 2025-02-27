@@ -1,4 +1,4 @@
-const config = require('../config/config')
+const config = require('../common/config')
 var noLoginNeeded = require('../common/apiConfig');
 const jwt = require('jsonwebtoken');
 const commonHelper = require('../common/commonHelper');
@@ -20,17 +20,19 @@ module.exports = {
         } else {
           
             var token = req.headers['authorization'];
-     
+            console.log("token==?",token)
             if (token) {
                 try {
                     jwt.verify(token, config.JWTKEY, async function (err, data) {
+                        console.log("err==>",err)
                         if (err) {
                             
                             
                             return res.status(401).send({ status: 401, message: 'Invalid Token' });
                             
                         } else {
-                            req.decoded = data; 
+                            req.decoded = data;
+                            console.log("Req.dec==>",data) 
                             let userData = await commonHelper.validateToken(req,res);
                            
                             if(userData.executed == 1){
@@ -42,7 +44,7 @@ module.exports = {
                         }
                     })
                 } catch(err){
-                   
+                    console.log("err==?",err)
                     return res.status(401).send({ status: 401, message: 'Invalid TOken' });
                     
                 }
