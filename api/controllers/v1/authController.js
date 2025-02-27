@@ -82,3 +82,21 @@ exports.getProfile = async (req, res) => {
     }
 
 }
+exports.userList = async (req, res) => {
+    try {
+
+        let info = await authService.userList(req, res);
+
+        if (info.executed == 1) {
+            res.json({ status: 200, message: stringconstant.SUCESS, data: info.data });
+        }
+        else {
+            res.json({ status: 400, message: stringconstant.EMAILALREADYEXISTS, data: {} });
+        }
+
+    } catch (error) {
+
+        res.json({ status: 503, message: stringconstant.SOMETHINGWENTWRONG, data: error });
+    }
+
+}

@@ -77,9 +77,9 @@ module.exports = {
                 // Validate token in the database
                 let userData = await commonHelper.validateSocketToken(decoded);
     
-                if (userData?.executed === 1) {
+                if (userData?.executed == 1) {
                     socket.user = decoded; // Attach user data to socket
-                    console.log("Socket authentication successful for user:", decoded);
+                    // console.log("Socket authentication successful for user:", decoded);
                     return next(); // Allow connection
                 } else {
                     console.warn("Socket authentication failed: Session expired.");

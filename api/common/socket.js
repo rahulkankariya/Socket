@@ -11,7 +11,7 @@ const initializeSocket = (server) => {
 
     io.on("connection", async (socket) => {
         const user = socket.user;
-        console.log("User Connected:", user);
+        // console.log("User Connected:", user);
 
         if (!user) {
             console.log("Unauthorized socket connection attempt.");
@@ -31,7 +31,7 @@ const initializeSocket = (server) => {
             const activeUsersResult = await commonHelper.userActiveList();
             const activeUsers = activeUsersResult.data || [];
 
-            console.log("Active Users:", activeUsers);
+            // console.log("Active Users:", activeUsers);
 
             // Find previous session and force logout
             const previousSession = activeUsers.find((u) => u.userId === user.id);
@@ -43,7 +43,7 @@ const initializeSocket = (server) => {
             console.error("Error fetching active users:", error);
         }
 
-        console.log(`User Connected: (ID: ${user.id}, Socket: ${socket.id})`);
+        // console.log(`User Connected: (ID: ${user.id}, Socket: ${socket.id})`);
 
         socket.on("disconnect", async () => {
             try {

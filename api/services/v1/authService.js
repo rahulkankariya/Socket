@@ -114,7 +114,61 @@ module.exports = {
             }
         })
     },
-    userTokenSaved:(id,token)=>{
-
-    }
+    userList:(req,res)=>{
+        return new Promise((resolve,reject) => {
+            try {
+             
+                let pageIndex = req.body.pageIndex ? req.body.pageIndex : 1;
+                let pageSize = req.body.pageSize ? req.body.pageSize : 10;
+                database.executeQuery(
+                    storeProcedure.getAllBanner,
+                    [
+                        (pageIndex - 1) * pageSize,
+                        pageSize
+    
+                    ], res, function (rows) {
+                        //console.log(rows)
+                        if (rows) {
+                            let totalPages = pageSize;
+                            
+                            var recordCount = rows[1][0].recordCount;
+    
+                            console.log("recout count==>", recordCount)
+                            if (recordCount <= 0) {
+                                console.log("If")
+                                pageSize = 0;
+                                totalPages = 0;
+                            }
+                            else {
+                                if (parseInt(recordCount) % totalPages == 0) {
+                                    console.log("If")
+                                    pageSize = Math.floor(parseInt(recordCount) / totalPages);
+                                    totalPages = Math.floor((parseInt(recordCount) / totalPages));
+                                }
+                                else {
+                                    console.log("else")
+                                    totalPages = Math.floor((parseInt(recordCount) / totalPages) + 1);
+                                }
+                            }
+                            let data = {
+    
+                                userList: rows[0],
+                                totalPages: totalPages,
+                                pageIndex: pageIndex,
+                                totalRecords: recordCount,
+                                pageSize: req.body.pageSize ? req.body.pageSize : 10
+                            };
+                            resolve({ executed: 1, data: data });
+                        } else {
+                            resolve({ executed: 0, data: {} });
+                        }
+    
+    
+                    })
+            } catch (error) {
+               
+                reject({ executed: 0, data: {} });
+            }
+        })
+    },
 }
