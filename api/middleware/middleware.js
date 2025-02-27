@@ -56,5 +56,40 @@ module.exports = {
                 });
             }
         }
-    }
+    },
+    socketToken:(socket, next)=>{
+        try {
+            const token = socket.handshake.headers.authorization;
+    
+            if (!token) {
+                console.warn("Socket connection rejected: No token provided.");
+                return next(new Error("No token provided."));
+            }
+    
+            jwt.verify(token, config.JWTKEY, async (err, decoded) => {
+                if (err) {
+                    console.warn("Socket authentication failed: Invalid token.", err);
+                    return next(new Error("Invalid token"));
+                }
+    
+                console.log("Token decoded successfully:", decoded);
+    
+                // Validate token in the database
+                let userData = await commonHelper.validateSocketToken(decoded);
+    
+                if (userData?.executed === 1) {
+                    socket.user = decoded; // Attach user data to socket
+                    console.log("Socket authentication successful for user:", decoded);
+                    return next(); // Allow connection
+                } else {
+                    console.warn("Socket authentication failed: Session expired.");
+                    return next(new Error("Session Expired"));
+                }
+            });
+        } catch (error) {
+            console.error("Socket authentication error:", error);
+            return next(new Error("Authentication Failed"));
+        }
+    }      
+       
 }

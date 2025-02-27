@@ -20,15 +20,12 @@
     <div id="chatUI" class="w-full h-full flex flex-col hidden">
         <div class="flex flex-1">
             <!-- Sidebar -->
-            <div class="w-1/3 bg-gray-100 border-r overflow-y-auto">
+            <div class="w-1/3 bg-gray-100 border-r overflow-y-auto" id="userList">
                 <div class="p-4 bg-blue-500 text-white font-bold flex justify-between">
                     Chats
                     <button onclick="logout()" class="text-sm text-white bg-red-500 px-2 py-1 rounded">Logout</button>
                 </div>
-                <div class="p-3 cursor-pointer border-b hover:bg-gray-200" onclick="selectUser('User 1')">
-                    <div class="font-semibold">User 1</div>
-                    <div class="text-sm text-gray-600">Last message...</div>
-                </div>
+                <div id="chatList"></div>
             </div>
 
             <!-- Chat Section -->
@@ -47,27 +44,108 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        let socket;
+        let selectedUser = '';
 
-        // Check if token exists
         document.addEventListener("DOMContentLoaded", () => {
             const token = localStorage.getItem("token");
-            console.log("Auth==>",token)
             if (token) {
-                fetch("/api/v1/getProfile", {
-                method: "get",
-                headers: { "Content-Type": "application/json","Authorization": `${token}`  },
-               
+                fetchUserProfile(token);
+            }
+        });
+
+        function fetchUserProfile(token) {
+            fetch("/api/v1/getProfile", {
+                method: "GET",
+                headers: { "Content-Type": "application/json", "Authorization": `${token}` },
             })
             .then(response => response.json())
             .then(data => {
-                console.log("data==>",data)
-                
+                if (data.status === 200) {
+                    showChatUI();
+                    connectSocket(token); // ✅ Connect Socket.io after login
+                } else {
+                    logout();
+                }
+            })
+            .catch(() => logout());
+        }
+
+        function connectSocket(token) {
+            socket = io({
+                extraHeaders: { Authorization: token }, // ✅ Send token in headers
             });
-                document.getElementById("loginPage").classList.add("hidden");
-                document.getElementById("chatUI").classList.remove("hidden");
+
+            socket.on("connect", () => console.log("Connected to Socket.io"));
+
+            // ✅ Detect forced logout when another session is started
+            socket.on("force-logout", () => {
+                // alert("You have been logged out because another session was started.");
+                logout();
+            });
+
+            socket.on("receive-message", (data) => {
+                if (data.from === selectedUser) {
+                    displayMessage(data.message, "left");
+                }
+            });
+
+            socket.on("disconnect", (reason) => {
+                console.warn("Socket disconnected:", reason);
+                if (reason === "io server disconnect") logout();
+            });
+        }
+
+        function showChatUI() {
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("chatUI").classList.remove("hidden");
+            loadDummyUsers();
+        }
+
+        function loadDummyUsers() {
+            const users = ["User 1", "User 2", "User 3", "User 4"]; 
+            const chatList = document.getElementById("chatList");
+            chatList.innerHTML = ""; 
+
+            users.forEach(user => {
+                const userElement = document.createElement("div");
+                userElement.className = "p-3 cursor-pointer border-b hover:bg-gray-200";
+                userElement.textContent = user;
+                userElement.onclick = () => selectUser(user);
+                chatList.appendChild(userElement);
+            });
+        }
+
+        function selectUser(user) {
+            selectedUser = user;
+            document.getElementById("chatHeader").textContent = user;
+            document.getElementById("chatBox").innerHTML = '';
+            document.getElementById("chatSection").classList.remove("hidden");
+        }
+
+        function sendMessage() {
+            if (!selectedUser) {
+                alert("Please select a user to chat with.");
+                return;
             }
-        });
+
+            const input = document.getElementById("messageInput");
+            const message = input.value.trim();
+            if (message) {
+                socket.emit("send-message", { to: selectedUser, message });
+                displayMessage(message, "right");
+                input.value = '';
+            }
+        }
+
+        function displayMessage(message, side) {
+            const chatBox = document.getElementById("chatBox");
+            const newMessage = document.createElement("div");
+            newMessage.className = `mb-2 p-2 rounded-lg w-max ${side === "right" ? "bg-blue-500 text-white ml-auto" : "bg-gray-300 text-black"}`;
+            newMessage.textContent = message;
+            chatBox.appendChild(newMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
         function login() {
             const email = document.getElementById("email").value.trim();
@@ -78,7 +156,6 @@
                 return;
             }
 
-            // Simulated login API call
             fetch("/api/v1/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -86,11 +163,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log("data==>",data)
-                if (data?.data.token) {
-                    localStorage.setItem("token", data?.data?.token);
-                    document.getElementById("loginPage").classList.add("hidden");
-                    document.getElementById("chatUI").classList.remove("hidden");
+                if (data?.data?.token) {
+                    localStorage.setItem("token", data.data.token);
+                    showChatUI();
+                    connectSocket(data.data.token); // ✅ Connect Socket.io only after login
                 } else {
                     alert("Invalid credentials");
                 }
@@ -101,35 +177,9 @@
             localStorage.removeItem("token");
             document.getElementById("chatUI").classList.add("hidden");
             document.getElementById("loginPage").classList.remove("hidden");
-        }
-
-        let selectedUser = '';
-        function selectUser(user) {
-            selectedUser = user;
-            document.getElementById('chatHeader').textContent = user;
-            document.getElementById('chatBox').innerHTML = '';
-            document.getElementById('chatSection').classList.remove('hidden');
-        }
-
-        function sendMessage() {
-            if (!selectedUser) {
-                alert('Please select a user to chat with.');
-                return;
-            }
-
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            if (message) {
-                socket.emit("user-message", message);
-                const chatBox = document.getElementById('chatBox');
-                const newMessage = document.createElement('div');
-                newMessage.className = 'mb-2 p-2 bg-blue-500 text-white rounded-lg w-max ml-auto';
-                newMessage.textContent = message;
-                chatBox.appendChild(newMessage);
-                input.value = '';
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
+            if (socket) socket.disconnect(); // ✅ Disconnect socket on logout
         }
     </script>
+
 </body>
 </html>

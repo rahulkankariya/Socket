@@ -22,7 +22,7 @@ module.exports = {
     validateToken:(req,res)=>{
         return new Promise((resolve,reject) => {
             try {
-               
+               console.log("req.dec==>",req.decoded)
                 
                 database.executeQuery(
                     storeProcudures.validateToken,[
@@ -30,6 +30,28 @@ module.exports = {
                         req.decoded.id
                     ],
                     res, function(err,rows){
+                        if(rows[0][0].res){
+                            resolve({ executed: 1, data: {} });
+                        }else{
+                            resolve({ executed: 0, data: {} });
+                        }
+                })
+            } catch (error) {
+                reject({ executed: 0, data: {} });
+            }
+        })
+    },
+    validateSocketToken:(socket)=>{
+        return new Promise((resolve,reject) => {
+            try {
+              
+                    console.log("Socket==?",socket)
+                database.executeQuery(
+                    storeProcudures.validateToken,[
+                        socket.uniqueId,
+                        socket.id
+                    ],
+                    '', function(err,rows){
                         if(rows[0][0].res){
                             resolve({ executed: 1, data: {} });
                         }else{
