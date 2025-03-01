@@ -6,5 +6,7 @@ module.exports = {
     getProfile:"call getProfile(?);",
     userOnlineCheck:"call userOnlineCheck(?,?);",
     activeUserList:"call activeUserList();",
-    userList:"call userList(?,?,?);"
+    userList:"call userList(?,?,?);",
+    messagelist:"call messagelist(?,?,?,?);",
+    
 }

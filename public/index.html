@@ -126,16 +126,16 @@
 
                 const data = await response.json();
                 let userList = data?.data.userList
-                console.log("DAta==?",)
-                if (data.data.status === 200) {
+                console.log("DAta==?",userList)
+                if (data.status === 200) {
                     totalPages = data.totalPages;
                     const chatList = document.getElementById("chatList");
                     
-                    data?.data?.userList.forEach(user => {
+                    userList.forEach(user => {
                         console.log("DivUserList==?",  data.data.userList)
                         const userElement = document.createElement("div");
                         userElement.className = "p-3 cursor-pointer border-b hover:bg-gray-200";
-                        userElement.textContent = user.name;
+                        userElement.textContent = user.first_name + " "+ user.last_name;
                         userElement.onclick = () => selectUser(user.first_name + " "+ user.last_name);
                         chatList.appendChild(userElement);
                     });
