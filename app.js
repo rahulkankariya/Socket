@@ -6,7 +6,7 @@ require("dotenv").config();
 const v1Routes = require("./api/routes/v1/v1");
 
 const app = express();
-
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

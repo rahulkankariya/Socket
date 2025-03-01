@@ -42,7 +42,14 @@ const initializeSocket = (server) => {
         } catch (error) {
             console.error("Error fetching active users:", error);
         }
-
+        socket.on("request-user-list", async (data) => {
+            console.log("Token==>",data)
+            const { pageIndex, pageSize } = data;
+            const users = await commonHelper.userActiveList(pageIndex, pageSize); // Replace with actual DB query
+            console.log("Users==>",users)
+            socket.emit("user-list-response", { status: 200, data: { userList: users }, totalPages: 5 });
+        });
+        
         // console.log(`User Connected: (ID: ${user.id}, Socket: ${socket.id})`);
 
         socket.on("disconnect", async () => {

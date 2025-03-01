@@ -86,9 +86,10 @@ module.exports = {
             }
         })
     },
-    userActiveList:()=>{
+    userActiveList:(pageIndex,pageSize)=>{
         return new Promise((resolve,reject) => {
             try {
+                console.log("USerListSocket==>",pageIndex,)
                 database.executeQuery(
                     storeProcudures.activeUserList,[
                        

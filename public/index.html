@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 h-screen flex items-center justify-center">
@@ -58,20 +59,10 @@
         });
 
         function fetchUserProfile(token) {
-            fetch("/api/v1/getProfile", {
-                method: "GET",
-                headers: { "Content-Type": "application/json", "Authorization": `${token}` },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 200) {
+           
                     showChatUI();
                     connectSocket(token);
-                } else {
-                    logout();
-                }
-            })
-            .catch(() => logout());
+               
         }
 
         function connectSocket(token) {
@@ -82,9 +73,13 @@
             socket.on("force-logout", () => {
                 logout();
             });
-
+            socket.emit('request-user-list',
+            {token},(data)=>{
+                console.log("request-user-list",
+                data)
+            })
             socket.on("receive-message", (data) => {
-                if (data.from === selectedUser) {
+                if (data.from === selectedUsefetchUserProfiler) {
                     displayMessage(data.message, "left");
                 }
             });
@@ -126,7 +121,7 @@
 
                 const data = await response.json();
                 let userList = data?.data.userList
-                console.log("DAta==?",userList)
+                // console.log("DAta==?",userList)
                 if (data.status === 200) {
                     totalPages = data.totalPages;
                     const chatList = document.getElementById("chatList");
