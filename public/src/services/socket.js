@@ -1,7 +1,8 @@
 import { renderChatList } from "../components/ChatList.js";
 import { displayMessage } from "../utils/helpers.js";
 
-let socket;
+// let socket;
+export let socket;
 export function connectSocket(token) {
   socket = io({ extraHeaders: { Authorization: token } });
 

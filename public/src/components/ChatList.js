@@ -9,7 +9,7 @@ export function renderChatList(users) {
   } else {
     users.forEach((user) => {
       const userElement = document.createElement("div");
-      userElement.className = "p-3 cursor-pointer border-b hover:bg-gray-200";
+      userElement.className = "p-4 cursor-pointer border-b bg-gray-600 ";
       userElement.textContent = `${user.first_name} ${user.last_name}`;
       userElement.dataset.user = `${user.first_name} ${user.last_name}`;
       userElement.addEventListener("click", () => selectUser(userElement.dataset.user));

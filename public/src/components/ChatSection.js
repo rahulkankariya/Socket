@@ -1,3 +1,5 @@
+import { sendMessage } from "../utils/helpers.js";
+
 export function renderChatSection() {
   document.getElementById("root").innerHTML = `
     <div class="w-full h-screen flex">
@@ -12,30 +14,19 @@ export function renderChatSection() {
         <div class="flex-1 p-4 overflow-y-auto" id="chatBox"></div>
         <div class="p-4 border-t flex">
           <input type="text" id="messageInput" class="flex-1 p-2 border rounded-lg" placeholder="Type a message..." />
-          <button class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg" id="sendMessageBtn">Send</button>
+          <button id="sendMessageBtn" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg">Send</button>
         </div>
       </div>
     </div>
   `;
 
-  // ✅ Attach event listener AFTER the UI is rendered
-  document.getElementById("sendMessageBtn").addEventListener("click", sendMessage);
-  function sendMessage() {
-    const input = document.getElementById("messageInput");
-    const message = input.value.trim();
-    
-    if (!message) return;
-  
-    // ✅ Append the message to the chat box
-    const chatBox = document.getElementById("chatBox");
-    const newMessage = document.createElement("div");
-    newMessage.className = "mb-2 p-2 rounded-lg w-max bg-blue-500 text-white ml-auto";
-    newMessage.textContent = message;
-  
-    chatBox.appendChild(newMessage);
-    chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
-  
-    input.value = ""; // Clear input after sending
-  }
-  
+  // ✅ Attach event listener AFTER rendering UI
+  setTimeout(() => {
+    const sendMessageBtn = document.getElementById("sendMessageBtn");
+    if (sendMessageBtn) {
+      sendMessageBtn.addEventListener("click", sendMessage);
+    } else {
+      console.error("⚠️ Send button not found!");
+    }
+  }, 0);
 }
