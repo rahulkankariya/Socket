@@ -86,13 +86,16 @@ module.exports = {
             }
         })
     },
-    userActiveList:(pageIndex,pageSize)=>{
+    userActiveList:(pageIndex,pageSize,id)=>{
         return new Promise((resolve,reject) => {
             try {
-                console.log("USerListSocket==>",pageIndex,)
+
+                console.log("USerListSocket==>",pageIndex,pageSize,id,)
                 database.executeQuery(
-                    storeProcudures.activeUserList,[
-                       
+                    storeProcudures.userList,[
+                       id,
+                        (pageIndex - 1) * pageSize,
+                       pageSize
                     ],
                     '', function(err,rows){
                         if(rows[0].length!=0){
