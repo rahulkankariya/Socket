@@ -2,12 +2,12 @@ import { sendMessage } from "../utils/helpers.js";
 
 export function renderChatSection() {
   document.getElementById("root").innerHTML = `
-    <div class="w-full h-screen flex">
+  <div class="w-full h-screen flex">
       <!-- Sidebar (User List) -->
       <div class="w-1/3 bg-gray-100 border-r overflow-y-auto h-full" id="userList"></div>
 
       <!-- Chat Section -->
-      <div class="w-2/3 flex flex-col h-full" id="chatSection">
+      <div class="w-2/3 flex flex-col h-full hidden" id="chatSection"> <!-- ✅ Initially hidden -->
         <div class="bg-blue-500 p-4 text-white font-bold flex justify-between items-center">
           <span id="chatHeader">Select a User</span>
         </div>

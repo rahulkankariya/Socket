@@ -6,10 +6,14 @@ export function showChatUI(token) {
   connectSocket(token);
 }
 
-export function selectUser(user) {
-  document.getElementById("chatHeader").textContent = user;
+let selectedUserId = null; // ✅ Store selected user's ID
+
+export function selectUser(userId, userName) {
+  selectedUserId = userId; // ✅ Store the selected user's ID
+  document.getElementById("chatHeader").textContent = userName;
   document.getElementById("chatSection").classList.remove("hidden");
 }
+
 
 export function displayMessage(message, side) {
   const chatBox = document.getElementById("chatBox");
@@ -22,7 +26,7 @@ export function displayMessage(message, side) {
 export function sendMessage() {
   const input = document.getElementById("messageInput");
   const message = input.value.trim();
-
+  console.log("findUserId==>",selectedUserId)
   if (!message) return;
 
   // ✅ Emit message to the server
