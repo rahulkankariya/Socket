@@ -10,7 +10,7 @@ app.get('/favicon.ico', (req, res) => res.status(204).end());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.resolve("./public/client")));
+app.use(express.static(path.resolve("./public")));
 app.use(middleware.verifyToken)
 // Register API Routes
 app.use("/api/v1", v1Routes);
